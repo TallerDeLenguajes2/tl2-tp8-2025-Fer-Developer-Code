@@ -1,0 +1,29 @@
+@using TP7.PresupuestoModel;
+@model List<Presupuesto>
+@{
+    ViewData["Title"] = "Listado de Presupuestos";
+}
+<h1>@ViewData["Title"]</h1>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Presupuesto presupuesto in Model)
+        {
+            <tr>
+                <td>@presupuesto.IdPresupuesto</td>
+                <td>@presupuesto.NombreDestinatario</td>
+                <td>@presupuesto.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                <td>@presupuesto.Detalle</td>
+                <td>
+                </td>
+            </tr>
+        }
+    </tbody>
