@@ -11,9 +11,9 @@ public class Presupuesto
     public DateTime FechaCreacion { get; set; }
     public List<PresupuestosDetalle> Detalle { get; set; }
 
-    public double MontoPresupuesto()
+    public decimal MontoPresupuesto()
     {
-        double montoTotal = 0;
+        decimal montoTotal = 0;
         foreach(var item in Detalle)
         {
             montoTotal += item.Producto.Precio * item.Cantidad;
@@ -21,11 +21,11 @@ public class Presupuesto
         return montoTotal;
     }
 
-    public double MontoPresupuestoConIVA()
+    public decimal MontoPresupuestoConIVA()
     {
-        double montoBase = MontoPresupuesto();
-        double montoConIva = montoBase * 1.21;
-        return (double)montoConIva;
+        decimal montoBase = MontoPresupuesto();
+        decimal montoConIva = montoBase * 1.21m;
+        return montoConIva;
     }
 
     public int CantidadProductos()

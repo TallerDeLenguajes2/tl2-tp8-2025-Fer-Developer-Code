@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>tl2_tp8_2025_Fer_Developer_Code</RootNamespace>
   </PropertyGroup>
@@ -10,5 +9,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SQLite" Version="9.0.10" />
   </ItemGroup>
-
+  <ItemGroup>
+      <None Update="Db\Tienda.db">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
 </Project>

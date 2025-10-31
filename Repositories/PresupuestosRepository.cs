@@ -150,13 +150,12 @@ public class PresupuestosRepository
             {
                 var detalle = new PresupuestosDetalle
                 {
-                    // CORREGIDO: Nombres de columnas
                     Cantidad = Convert.ToInt32(reader["Cantidad"]),
                     Producto = new Productos
                     {
                         IdProducto = Convert.ToInt32(reader["IdProducto"]),
                         Descripcion = reader["Descripcion"].ToString(),
-                        Precio = Convert.ToDouble(reader["Precio"]) 
+                        Precio = Convert.ToDecimal(reader["Precio"]) 
                     }
                 };
                 detalles.Add(detalle);

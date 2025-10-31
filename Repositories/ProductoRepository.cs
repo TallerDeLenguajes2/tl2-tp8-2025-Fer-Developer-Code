@@ -26,7 +26,7 @@ public class ProductoRepository
                     // CORREGIDO: Nombres de columnas con mayúsculas
                     IdProducto = Convert.ToInt32(reader["IdProducto"]),
                     Descripcion = reader["Descripcion"].ToString(),
-                    Precio = Convert.ToDecimal(reader["Precio"]) // CORREGIDO: Convertir a Decimal
+                    Precio = Convert.ToDecimal(reader["Precio"]) 
                 };
                 listadoProductos.Add(product);
             }
