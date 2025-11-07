@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SistemaVentas.Web.ViewModels;
 using TP7.ProductoRepositorySpace;
 using TP7.ProductosModel;
 
@@ -24,31 +25,37 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        return View();
+        return View(new ProductoViewModel());
     }
     /// <summary>
     /// Recibe el producto desde el formulario Create.cshtml y lo guarda en la base de datos
     /// </summary>
-    /// <param name="producto"></param>
+    /// <param name="productoVM"></param>
     /// <returns></returns>
     [HttpPost]
-    public IActionResult Create(Productos producto)
+    public IActionResult Create(ProductoViewModel productoVM)
     {
         try
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _productoRepository.Create(producto);
-                return RedirectToAction("Index");
+
+                return View(productoVM);
             }
+
+            var productoDB = new Productos
+            {
+                Descripcion = productoVM.Descripcion,
+                Precio = productoVM.Precio,
+            };
+            _productoRepository.Create(productoDB);
+            return RedirectToAction("Index");
         }
         catch (Exception ex)
         {
             ViewData["ErrorMessage"] = ex.Message;
-            return View(producto);
+            return View(productoVM);
         }
-        // Si el ModelState no es válido, volvemos a mostrar el formulario
-        return View(producto);
     }
 
     [HttpGet]
@@ -65,31 +72,49 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Edit(int id)
     {
-        Productos producto = _productoRepository.GetById(id);
-        if (producto == null)
+        var ProductoDB = _productoRepository.GetById(id);
+        if (ProductoDB == null)
         {
             return NotFound();
         }
-        return View(producto);
+
+        var productoVM = new ProductoViewModel
+        {
+            IdProducto = ProductoDB.IdProducto,
+            Descripcion = ProductoDB.Descripcion,
+            Precio = ProductoDB.Precio
+        };
+        return View(productoVM);
     }
 
     [HttpPost]
-    public IActionResult Edit(Productos producto)
+    public IActionResult Edit(ProductoViewModel productoVM)
     {
         try
         {
-            if (ModelState.IsValid)
+            // 3. ¡CHEQUEO DE VALIDACIÓN!
+            if (!ModelState.IsValid)
             {
-                _productoRepository.Update(producto.IdProducto, producto);
-                return RedirectToAction("Index");
+                return View(productoVM);
             }
 
-            return View(producto);
+            // 4. "MAPEO": Convertimos el ViewModel al Modelo de BD
+            var productoBD = new Productos
+            {
+                IdProducto = productoVM.IdProducto,
+                Descripcion = productoVM.Descripcion,
+                Precio = productoVM.Precio
+            };
+
+            // 5. Enviamos el modelo de BD al repositorio
+            _productoRepository.Update(productoBD.IdProducto, productoBD);
+
+            return RedirectToAction("Index");
         }
         catch (Exception ex)
         {
             ViewData["ErrorMessage"] = ex.Message;
-            return View(producto);
+            return View(productoVM);
         }
     }
 
