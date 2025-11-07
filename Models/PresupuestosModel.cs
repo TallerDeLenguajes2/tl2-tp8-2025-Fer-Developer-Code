@@ -9,7 +9,7 @@ public class Presupuesto
     public int IdPresupuesto { get; set; }
     public string NombreDestinatario { get; set; }
     public DateTime FechaCreacion { get; set; }
-    public List<PresupuestosDetalle> Detalle { get; set; }
+    public List<PresupuestosDetalle> Detalle { get; set; } = new List<PresupuestosDetalle>();
 
     public decimal MontoPresupuesto()
     {

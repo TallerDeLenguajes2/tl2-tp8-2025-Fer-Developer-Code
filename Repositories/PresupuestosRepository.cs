@@ -91,7 +91,40 @@ public class PresupuestosRepository
             throw new Exception("Error al crear presupuesto: " + ex.Message, ex);
         }
     }
+/// <summary>
+/// Actualiza los datos del encabezado de un presupuesto (Destinatario y Fecha).
+/// No modifica los detalles.
+/// </summary>
+public bool Update(Presupuesto presupuesto)
+{
+    const string query = @"
+        UPDATE Presupuestos 
+        SET NombreDestinatario = @nombre, 
+            FechaCreacion = @fecha 
+        WHERE IdPresupuesto = @id";
+    
+    try
+    {
+        using (var conexion = new SqliteConnection(_cadenaConexion))
+        {
+            conexion.Open();
+            using (var command = new SqliteCommand(query, conexion))
+            {
+                command.Parameters.AddWithValue("@nombre", presupuesto.NombreDestinatario);
+                command.Parameters.AddWithValue("@fecha", presupuesto.FechaCreacion);
+                command.Parameters.AddWithValue("@id", presupuesto.IdPresupuesto);
 
+                // ExecuteNonQuery devuelve el número de filas afectadas
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"Error al actualizar presupuesto {presupuesto.IdPresupuesto}: " + ex.Message, ex);
+    }
+}
     /// <summary>
     /// Obtiene todos los presupuestos, incluyendo sus detalles.
     /// </summary>

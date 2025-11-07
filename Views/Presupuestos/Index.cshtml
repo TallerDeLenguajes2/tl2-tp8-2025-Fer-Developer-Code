@@ -1,29 +1,41 @@
-@using TP7.PresupuestoModel;
+@using TP7.PresupuestoModel
 @model List<Presupuesto>
 @{
     ViewData["Title"] = "Listado de Presupuestos";
 }
+
 <h1>@ViewData["Title"]</h1>
-<table class="table table-striped table-hover">
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear Nuevo Presupuesto</a>
+</p>
+
+<table class="table table-hover">
     <thead>
         <tr>
             <th>ID</th>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Total</th>
-            <th>Acciones</th>
+            <th>Destinatario</th>
+            <th>Fecha de Creación</th>
+            <th>N° Productos</th> <th>Total (c/IVA)</th> <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (Presupuesto presupuesto in Model)
+        @foreach (var presupuesto in Model)
         {
             <tr>
                 <td>@presupuesto.IdPresupuesto</td>
                 <td>@presupuesto.NombreDestinatario</td>
                 <td>@presupuesto.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                <td>@presupuesto.Detalle</td>
+                
+                <td>@presupuesto.CantidadProductos()</td>
+                <td>@presupuesto.MontoPresupuestoConIVA().ToString("C")</td>
+                
                 <td>
+                    <a asp-action="Edit" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Details" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-action="Delete" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-danger btn-sm">Eliminar</a>
                 </td>
             </tr>
         }
     </tbody>
+</table>

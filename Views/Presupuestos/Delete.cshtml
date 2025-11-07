@@ -1,0 +1,35 @@
+@using TP7.PresupuestoModel
+@model Presupuesto
+@{
+    ViewData["Title"] = "Eliminar Presupuesto";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<h3 class="text-danger">¿Estás seguro de que deseas eliminar este presupuesto?</h3>
+<p class="text-danger">Esta acción no se puede deshacer y borrará también todos los productos asociados a él.</p>
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+}
+
+<div>
+    <h4>Presupuesto N°: @Model.IdPresupuesto</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Destinatario:</dt>
+        <dd class="col-sm-9">@Model.NombreDestinatario</dd>
+        <dt class="col-sm-3">Fecha de Creación:</dt>
+        <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy")</dd>
+        <dt class="col-sm-3">Total (c/IVA):</dt>
+        <dd class="col-sm-9">@Model.MontoPresupuestoConIVA().ToString("C")</dd>
+    </dl>
+    
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="IdPresupuesto" /> 
+        
+        <input type="submit" value="Eliminar Definitivamente" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
