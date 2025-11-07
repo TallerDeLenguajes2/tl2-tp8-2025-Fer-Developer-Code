@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
+
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>tl2_tp8_2025_Fer_Developer_Code</RootNamespace>
   </PropertyGroup>
