@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using tl2_tp8_2025_Fer_Developer_Code.Models;
+using Models;
 
 namespace tl2_tp8_2025_Fer_Developer_Code.Controllers;
 
@@ -27,5 +27,9 @@ public class HomeController : Controller
     public IActionResult Error()
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+    public IActionResult AccesoDenegado()
+    {
+        return View();
     }
 }

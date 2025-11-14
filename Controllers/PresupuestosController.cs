@@ -12,18 +12,47 @@ public class PresupuestosController : Controller
     // 2. CAMBIA LOS TIPOS A LAS INTERFACES (y readonly)
     private readonly IPresupuestoRepository _presupuestoRepository;
     private readonly IProductoRepository _productoRepository;
+    private readonly IAuthenticationService _authService;
 
     // ASP.NET verá que pides DOS dependencias y te las entregará
-    public PresupuestosController(IPresupuestoRepository presupuestoRepository, IProductoRepository productoRepository)
+    public PresupuestosController(IPresupuestoRepository presupuestoRepository,
+                                    IProductoRepository productoRepository,
+                                    IAuthenticationService authService)
     {
-        // 4. Asigna ambas dependencias
         _presupuestoRepository = presupuestoRepository;
         _productoRepository = productoRepository;
+        _authService = authService;
+    }
+
+    private IActionResult CheckAdminPermissions()
+    {
+        if (!_authService.IsAuthenticated()) return RedirectToAction("Index", "Login");
+        if (!_authService.HasAccessLevel("Administrador"))
+        {
+            // Lo mandamos a su propia vista de Acceso Denegado
+            return RedirectToAction(nameof(AccesoDenegado));
+        }
+        return null;
+    }
+
+    private IActionResult CheckClientOrAdminPermissions()
+    {
+        if (!_authService.IsAuthenticated()) return RedirectToAction("Index", "Login");
+
+        // Revisa si NO es Admin Y TAMPOCO es Cliente
+        if (!_authService.HasAccessLevel("Administrador") &&
+            !_authService.HasAccessLevel("Cliente"))
+        {
+            return RedirectToAction("accesoDenegado", "Home");
+        }
+        return null;
     }
 
     // 3. Acción Index: Responde a GET /Presupuestos
     public IActionResult Index()
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         // 4. Pedimos la lista COMPLETA de presupuestos al repo
         //    (El repo se encarga de traer los detalles de c/u)
         List<Presupuesto> presupuestos = _presupuestoRepository.GetAll();
@@ -35,6 +64,8 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Details(int id)
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // 1. Buscamos el presupuesto. El repositorio ya se encarga
@@ -61,6 +92,8 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Create()
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         // Creamos un ViewModel nuevo y asignamos la fecha por defecto
         var viewModel = new PresupuestoViewModel
         {
@@ -73,6 +106,8 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult Create(PresupuestoViewModel viewModel) // 1. RECIBE EL VIEWMODEL
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // 2. ¡VALIDACIÓN PERSONALIZADA!
@@ -112,6 +147,8 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Edit(int id)
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         var presupuestoBD = _presupuestoRepository.GetById(id);
         if (presupuestoBD == null)
         {
@@ -134,6 +171,8 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult Edit(PresupuestoViewModel viewModel) // 👈 1. RECIBE EL VIEWMODEL
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // 2. ¡VALIDACIÓN PERSONALIZADA!
@@ -172,6 +211,8 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Delete(int id)
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         var presupuesto = _presupuestoRepository.GetById(id);
         if (presupuesto == null)
         {
@@ -204,6 +245,8 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult AgregarProducto(int id) // 'id' es el IdPresupuesto
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         // 1. Obtenemos la lista de productos para el dropdown
         var productosDisponibles = _productoRepository.GetProducts();
 
@@ -228,6 +271,8 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult AgregarProducto(AgregarProductoViewModel viewModel)
     {
+        var securityCheck = CheckClientOrAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // 1. CHEQUEO DE VALIDACIÓN
@@ -261,5 +306,11 @@ public class PresupuestosController : Controller
             viewModel.ListaProductos = new SelectList(productos, "IdProducto", "Descripcion");
             return View(viewModel);
         }
+    }
+
+    [HttpGet]
+    public IActionResult AccesoDenegado()
+    {
+        return View();
     }
 }

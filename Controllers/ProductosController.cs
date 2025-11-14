@@ -10,19 +10,43 @@ public class ProductosController : Controller
 {
     // 2. CAMBIA EL TIPO A LA INTERFAZ 
     private readonly IProductoRepository _productoRepository;
+    private readonly IAuthenticationService _authService;
 
     // 3. REEMPLAZA TU CONSTRUCTOR VACÍO POR ESTE
     // Este es el "Constructor de Inyección de Dependencias"
     // Pide la "abstracción" (la interfaz), no la clase concreta
-    public ProductosController(IProductoRepository productoRepository)
+    public ProductosController(IProductoRepository productoRepository, IAuthenticationService authService)
     {
         // 4. Asigna la dependencia que ASP.NET te "inyecta"
         _productoRepository = productoRepository;
+        _authService = authService;
+    }
+
+    // 5. CREA EL MÉTODO DE CHEQUEO PRIVADO
+    private IActionResult CheckAdminPermissions()
+    {
+        // 1. ¿No está logueado? -> A la página de Login
+        if (!_authService.IsAuthenticated())
+        {
+            return RedirectToAction("Index", "Login");
+        }
+
+        // 2. ¿No es Admin? -> A la página de Acceso Denegado
+        if (!_authService.HasAccessLevel("Administrador"))
+        {
+            return RedirectToAction("AccesoDenegado", "Home"); // Asumiendo que está en Shared
+        }
+
+        // 3. Si pasó ambos filtros, tiene permiso
+        return null;
     }
 
     [HttpGet]
     public IActionResult Index()
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
+
         List<Productos> productos = _productoRepository.GetProducts();
         return View(productos);
     }
@@ -33,6 +57,8 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Create()
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         return View(new ProductoViewModel());
     }
     /// <summary>
@@ -43,6 +69,9 @@ public class ProductosController : Controller
     [HttpPost]
     public IActionResult Create(ProductoViewModel productoVM)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
+
         try
         {
             if (!ModelState.IsValid)
@@ -69,6 +98,8 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Details(int id)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         Productos producto = _productoRepository.GetById(id);
         if (producto == null)
         {
@@ -80,6 +111,8 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Edit(int id)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         var ProductoDB = _productoRepository.GetById(id);
         if (ProductoDB == null)
         {
@@ -98,6 +131,8 @@ public class ProductosController : Controller
     [HttpPost]
     public IActionResult Edit(ProductoViewModel productoVM)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // 3. ¡CHEQUEO DE VALIDACIÓN!
@@ -129,6 +164,8 @@ public class ProductosController : Controller
     [HttpGet]
     public IActionResult Delete(int id)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         var producto = _productoRepository.GetById(id);
         if (producto == null)
         {

@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="text-center">
+    <img src="~/images/acceso_denegado.png" alt="Acceso Denegado" style="max-width: 200px;" />
+    <h1 class="display-4 text-danger">Acceso Denegado (Error 403)</h1>
+    <p class_mt-4>
+        Lo sentimos, no tienes los permisos necesarios para acceder a este recurso.
+    </p>
+    <p>
+        Por favor, contacta al administrador del sistema si crees que esto es un error.
+    </p>
+    <div class="mt-4">
+        <a asp-action="Index" asp-controller="Home" class="btn btn-primary">Volver al Inicio</a>
+        <a asp-action="Logout" asp-controller="Login" class="btn btn-secondary">Cerrar Sesión</a>
+    </div>
+</div>
