@@ -1,10 +1,22 @@
-@using TP7.PresupuestoModel
-@model Presupuesto
+@model TP7.PresupuestoModel.Presupuesto
 @{
     ViewData["Title"] = "Detalles del Presupuesto";
 }
 
 <h1>@ViewData["Title"]</h1>
+
+<div>
+    <h4>Presupuesto N°: @Model.IdPresupuesto</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Destinatario:</dt>
+        <dd class="col-sm-9">@Model.NombreDestinatario</dd>
+
+        <dt class="col-sm-3">Fecha de Creación:</dt>
+        <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy")</dd>
+    </dl>
+</div>
+
 <hr />
 
 <p>
@@ -14,60 +26,48 @@
 </p>
 
 <h4 class="mt-4">Productos Incluidos</h4>
+
 <table class="table table-bordered">
-    <div>
-        <h4>Presupuesto N°: @Model.IdPresupuesto</h4>
-        <hr />
-        <dl class="row">
-            <dt class="col-sm-3">Destinatario:</dt>
-            <dd class="col-sm-9">@Model.NombreDestinatario</dd>
-
-            <dt class="col-sm-3">Fecha de Creación:</dt>
-            <dd class="col-sm-9">@Model.FechaCreacion.ToString("dd/MM/yyyy")</dd>
-        </dl>
-    </div>
-
-    <hr />
-
-    <h4 class="mt-4">Productos Incluidos</h4>
-
-    <table class="table table-bordered">
-        <thead class="table-dark">
+    <thead class="table-dark">
+        <tr>
+            <th>Producto (Descripción)</th>
+            <th>Precio Unit.</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Detalle)
+        {
             <tr>
-                <th>Producto (Descripción)</th>
-                <th>Precio Unit.</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
+                <td>@item.Producto.Descripcion</td>
+                <td>@item.Producto.Precio.ToString("C")</td>
+                <td>@item.Cantidad</td>
+                <td>@((item.Producto.Precio * item.Cantidad).ToString("C"))</td>
+                <td>
+                    <form asp-action="RemoverProducto" method="post" onsubmit="return confirm('¿Quitar este producto del presupuesto?');">
+                        <input type="hidden" name="presupuestoId" value="@Model.IdPresupuesto" />
+                        <input type="hidden" name="productoId" value="@item.Producto.IdProducto" />
+                        <button type="submit" class="btn btn-danger btn-sm">Quitar</button>
+                    </form>
+                </td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Detalle)
-            {
-                <tr>
-                    <td>@item.Producto.Descripcion</td>
-                    <td>@item.Producto.Precio.ToString("C")</td>
-                    <td>@item.Cantidad</td>
-                    <td>@((item.Producto.Precio * item.Cantidad).ToString("C"))</td>
-                </tr>
-            }
-        </tbody>
-        <tfoot class="table-light">
-            <tr>
-                <td colspan="3" class="text-end"><strong>Total (Sin IVA):</strong></td>
-                <td><strong>@Model.MontoPresupuesto().ToString("C")</strong></td>
-            </tr>
-            <tr>
-                <td colspan="3" class="text-end"><strong>Total (Con IVA 21%):</strong></td>
-                <td><strong>@Model.MontoPresupuestoConIVA().ToString("C")</strong></td>
-            </tr>
-        </tfoot>
-    </table>
-
-    <hr />
-    <h4>Agregar Producto al Presupuesto</h4>
-
-    <div class="mt-3">
-        <a asp-action="Edit" asp-route-id="@Model.IdPresupuesto" class="btn btn-warning">Editar</a> |
-        <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
-    </div>
+        }
+    </tbody>
+    <tfoot class="table-light">
+        <tr>
+            <td colspan="4" class="text-end"><strong>Total (Sin IVA):</strong></td>
+            <td><strong>@Model.MontoPresupuesto().ToString("C")</strong></td>
+        </tr>
+        <tr>
+            <td colspan="4" class="text-end"><strong>Total (Con IVA 21%):</strong></td>
+            <td><strong>@Model.MontoPresupuestoConIVA().ToString("C")</strong></td>
+        </tr>
+    </tfoot>
 </table>
+
+<div class="mt-3">
+    <a asp-action="Edit" asp-route-id="@Model.IdPresupuesto" class="btn btn-warning">Editar</a> |
+    <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+</div>
