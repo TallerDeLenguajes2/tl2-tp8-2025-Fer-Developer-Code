@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using TP7.PresupuestosDetalleModel;
 
-namespace TP7.PresupuestoModel;
+namespace Models;
 
 public class Presupuesto
 {

@@ -1,6 +1,6 @@
-using TP7.ProductosModel;
+using Models;
 
-namespace TP7.PresupuestosDetalleModel;
+namespace Models;
 
 public class PresupuestosDetalle
 {

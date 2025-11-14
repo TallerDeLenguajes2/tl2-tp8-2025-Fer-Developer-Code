@@ -1,4 +1,4 @@
-namespace tl2_tp8_2025_Fer_Developer_Code.Models;
+namespace Models;
 
 public class ErrorViewModel
 {

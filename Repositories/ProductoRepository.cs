@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Models;
 using Microsoft.Data.Sqlite;
-using TP7.ProductosModel;
+using Interfaces;
 
-namespace TP7.ProductoRepositorySpace;
+namespace Repositories;
 
 /// <summary>
 /// Repositorio para gestionar las operaciones de Productos en la base de datos.
 /// Sigue el Principio de Responsabilidad Única (SRP):
 /// Su única responsabilidad es mediar entre la lógica de negocio y la base de datos.
 /// </summary>
-public class ProductoRepository
+public class ProductoRepository : IProductoRepository
 {
     // 'readonly' asegura que la cadena de conexión no se pueda cambiar
     // después de que se inicializa el repositorio.

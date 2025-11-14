@@ -1,4 +1,4 @@
-namespace TP7.ProductosModel;
+namespace Models;
 
 public class Productos
 {

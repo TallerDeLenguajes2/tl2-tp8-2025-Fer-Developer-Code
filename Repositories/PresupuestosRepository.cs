@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Interfaces;
 using Microsoft.Data.Sqlite;
-using TP7.PresupuestoModel;
-using TP7.PresupuestosDetalleModel;
-using TP7.ProductosModel;
+using Models;
 
-namespace TP7.PresupuestosRepositorySpace;
+namespace Repositories;
 
 /// <summary>
 /// Repositorio para gestionar las operaciones de Presupuestos.
 /// Esta clase maneja la lógica de transacciones, ya que un Presupuesto
 /// se compone de un encabezado y una lista de detalles (dos tablas).
 /// </summary>
-public class PresupuestosRepository
+public class PresupuestosRepository : IPresupuestoRepository
 {
     private readonly string _cadenaConexion;
 
@@ -91,40 +90,40 @@ public class PresupuestosRepository
             throw new Exception("Error al crear presupuesto: " + ex.Message, ex);
         }
     }
-/// <summary>
-/// Actualiza los datos del encabezado de un presupuesto (Destinatario y Fecha).
-/// No modifica los detalles.
-/// </summary>
-public bool Update(Presupuesto presupuesto)
-{
-    const string query = @"
+    /// <summary>
+    /// Actualiza los datos del encabezado de un presupuesto (Destinatario y Fecha).
+    /// No modifica los detalles.
+    /// </summary>
+    public bool Update(Presupuesto presupuesto)
+    {
+        const string query = @"
         UPDATE Presupuestos 
         SET NombreDestinatario = @nombre, 
             FechaCreacion = @fecha 
         WHERE IdPresupuesto = @id";
-    
-    try
-    {
-        using (var conexion = new SqliteConnection(_cadenaConexion))
-        {
-            conexion.Open();
-            using (var command = new SqliteCommand(query, conexion))
-            {
-                command.Parameters.AddWithValue("@nombre", presupuesto.NombreDestinatario);
-                command.Parameters.AddWithValue("@fecha", presupuesto.FechaCreacion);
-                command.Parameters.AddWithValue("@id", presupuesto.IdPresupuesto);
 
-                // ExecuteNonQuery devuelve el número de filas afectadas
-                int rowsAffected = command.ExecuteNonQuery();
-                return rowsAffected > 0;
+        try
+        {
+            using (var conexion = new SqliteConnection(_cadenaConexion))
+            {
+                conexion.Open();
+                using (var command = new SqliteCommand(query, conexion))
+                {
+                    command.Parameters.AddWithValue("@nombre", presupuesto.NombreDestinatario);
+                    command.Parameters.AddWithValue("@fecha", presupuesto.FechaCreacion);
+                    command.Parameters.AddWithValue("@id", presupuesto.IdPresupuesto);
+
+                    // ExecuteNonQuery devuelve el número de filas afectadas
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al actualizar presupuesto {presupuesto.IdPresupuesto}: " + ex.Message, ex);
+        }
     }
-    catch (Exception ex)
-    {
-        throw new Exception($"Error al actualizar presupuesto {presupuesto.IdPresupuesto}: " + ex.Message, ex);
-    }
-}
     /// <summary>
     /// Obtiene todos los presupuestos, incluyendo sus detalles.
     /// </summary>
@@ -354,5 +353,31 @@ public bool Update(Presupuesto presupuesto)
             }
         }
         return detalles;
+    }
+    public bool RemoverProductoDelPresupuesto(int presupuestoId, int productoId)
+    {
+        const string query = @"
+        DELETE FROM PresupuestosDetalle 
+        WHERE IdPresupuesto = @presupuestoId AND IdProducto = @productoId";
+
+        try
+        {
+            using (var conexion = new SqliteConnection(_cadenaConexion)) // 'cadenaConexion' es tu variable de clase
+            {
+                conexion.Open();
+                using (var command = new SqliteCommand(query, conexion))
+                {
+                    command.Parameters.AddWithValue("@presupuestoId", presupuestoId);
+                    command.Parameters.AddWithValue("@productoId", productoId);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error al remover producto {productoId} del presupuesto {presupuestoId}: " + ex.Message, ex);
+        }
     }
 }
