@@ -1,17 +1,25 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaVentas.Web.ViewModels;
-using TP7.ProductoRepositorySpace;
-using TP7.ProductosModel;
+using Models;
+using Repositories;
+using Interfaces;
 
 namespace TP8.Controllers;
 
 public class ProductosController : Controller
 {
-    private ProductoRepository _productoRepository;
-    public ProductosController()
+    // 2. CAMBIA EL TIPO A LA INTERFAZ 
+    private readonly IProductoRepository _productoRepository;
+
+    // 3. REEMPLAZA TU CONSTRUCTOR VACÍO POR ESTE
+    // Este es el "Constructor de Inyección de Dependencias"
+    // Pide la "abstracción" (la interfaz), no la clase concreta
+    public ProductosController(IProductoRepository productoRepository)
     {
-        _productoRepository = new ProductoRepository();
+        // 4. Asigna la dependencia que ASP.NET te "inyecta"
+        _productoRepository = productoRepository;
     }
+
     [HttpGet]
     public IActionResult Index()
     {

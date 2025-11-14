@@ -13,8 +13,8 @@ namespace SistemaVentas.Web.ViewModels
         public int IdProducto { get; set; } // Guardará el ID del producto seleccionado
 
         [Display(Name = "Cantidad")]
-        [Required(ErrorMessage = "La cantidad es obligatoria.")] // Requerida [cite: 1426]
-        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")] // Mayor a 0 [cite: 1426]
+        [Required(ErrorMessage = "La cantidad es obligatoria.")] // Requerida 
+        [Range(1, int.MaxValue, ErrorMessage = "La cantidad debe ser al menos 1.")] // Mayor a 0 
         public int Cantidad { get; set; } = 1; // Valor por defecto
 
         // Propiedad para rellenar el DropDown

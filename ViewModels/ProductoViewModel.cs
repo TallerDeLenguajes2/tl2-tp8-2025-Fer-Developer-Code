@@ -8,13 +8,13 @@ namespace SistemaVentas.Web.ViewModels
 
         [Display(Name = "Descripción")]
         [StringLength(250, ErrorMessage = "La descripción no puede tener más de 250 caracteres.")]
-        public string Descripcion { get; set; } // Opcional, pero con límite [cite: 1415]
+        public string Descripcion { get; set; } // Opcional, pero con límite 
 
         [Display(Name = "Precio Unitario")]
        
-        [Required(ErrorMessage = "El precio es obligatorio.")] // Requerido [cite: 1416]
+        [Required(ErrorMessage = "El precio es obligatorio.")] // Requerido 
      
-        [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser un valor positivo.")] // Mayor a 0 [cite: 1416]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El precio debe ser un valor positivo.")] // Mayor a 0
         public decimal Precio { get; set; }
     }
 }

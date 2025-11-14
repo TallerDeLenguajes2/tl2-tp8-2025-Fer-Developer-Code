@@ -1,24 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
-using TP7.PresupuestoModel;
-using TP7.PresupuestosRepositorySpace;
-using TP7.ProductoRepositorySpace;
-using TP7.ProductosModel;
+using Models;
+using Repositories;
 using SistemaVentas.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Interfaces;
 
 namespace TP8.Controllers;
 
 public class PresupuestosController : Controller
 {
-    // 1. Referencia al repositorio de presupuestos
-    private readonly PresupuestosRepository _presupuestoRepository;
-    private readonly ProductoRepository _productoRepository;
+    // 2. CAMBIA LOS TIPOS A LAS INTERFACES (y readonly)
+    private readonly IPresupuestoRepository _presupuestoRepository;
+    private readonly IProductoRepository _productoRepository;
 
-    // 2. Constructor: Inicializamos el repositorio
-    public PresupuestosController()
+    // ASP.NET verá que pides DOS dependencias y te las entregará
+    public PresupuestosController(IPresupuestoRepository presupuestoRepository, IProductoRepository productoRepository)
     {
-        _presupuestoRepository = new PresupuestosRepository();
-        _productoRepository = new ProductoRepository();
+        // 4. Asigna ambas dependencias
+        _presupuestoRepository = presupuestoRepository;
+        _productoRepository = productoRepository;
     }
 
     // 3. Acción Index: Responde a GET /Presupuestos
