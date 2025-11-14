@@ -30,7 +30,7 @@ public class PresupuestosController : Controller
         if (!_authService.HasAccessLevel("Administrador"))
         {
             // Lo mandamos a su propia vista de Acceso Denegado
-            return RedirectToAction(nameof(AccesoDenegado));
+            return RedirectToAction("accesoDenegado", "Home");
         }
         return null;
     }
@@ -92,7 +92,7 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         // Creamos un ViewModel nuevo y asignamos la fecha por defecto
         var viewModel = new PresupuestoViewModel
@@ -106,7 +106,7 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult Create(PresupuestoViewModel viewModel) // 1. RECIBE EL VIEWMODEL
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         try
         {
@@ -147,7 +147,7 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Edit(int id)
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         var presupuestoBD = _presupuestoRepository.GetById(id);
         if (presupuestoBD == null)
@@ -171,7 +171,7 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult Edit(PresupuestoViewModel viewModel) // 👈 1. RECIBE EL VIEWMODEL
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         try
         {
@@ -211,7 +211,7 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Delete(int id)
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         var presupuesto = _presupuestoRepository.GetById(id);
         if (presupuesto == null)
@@ -227,6 +227,8 @@ public class PresupuestosController : Controller
     [HttpPost, ActionName("Delete")]
     public IActionResult DeleteConfirmed(int id)
     {
+        var securityCheck = CheckAdminPermissions();
+        if (securityCheck != null) return securityCheck;
         try
         {
             // Usamos el repo que ya tiene la lógica de transacción
@@ -245,7 +247,7 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult AgregarProducto(int id) // 'id' es el IdPresupuesto
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         // 1. Obtenemos la lista de productos para el dropdown
         var productosDisponibles = _productoRepository.GetProducts();
@@ -271,7 +273,7 @@ public class PresupuestosController : Controller
     [HttpPost]
     public IActionResult AgregarProducto(AgregarProductoViewModel viewModel)
     {
-        var securityCheck = CheckClientOrAdminPermissions();
+        var securityCheck = CheckAdminPermissions();
         if (securityCheck != null) return securityCheck;
         try
         {
@@ -307,10 +309,19 @@ public class PresupuestosController : Controller
             return View(viewModel);
         }
     }
-
-    [HttpGet]
-    public IActionResult AccesoDenegado()
+    [HttpPost]
+    public IActionResult RemoverProducto(int presupuestoId, int productoId)
     {
-        return View();
+        try
+        {
+            _presupuestoRepository.RemoverProductoDelPresupuesto(presupuestoId, productoId);
+
+            return RedirectToAction("Details", new { id = presupuestoId });
+        }
+        catch (Exception ex)
+        {
+            ViewData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Details", new { id = presupuestoId });
+        }
     }
 }
