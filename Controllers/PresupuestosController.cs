@@ -3,6 +3,8 @@ using TP7.PresupuestoModel;
 using TP7.PresupuestosRepositorySpace;
 using TP7.ProductoRepositorySpace;
 using TP7.ProductosModel;
+using SistemaVentas.Web.ViewModels;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace TP8.Controllers;
 
@@ -179,39 +181,65 @@ public class PresupuestosController : Controller
         }
     }
 
-    [HttpPost]
-    public IActionResult AgregarProducto(int presupuestoId, int productoId, int cantidad)
+    [HttpGet]
+    public IActionResult AgregarProducto(int id) // 'id' es el IdPresupuesto
     {
-        // Recibimos los 3 valores del formulario
+        // 1. Obtenemos la lista de productos para el dropdown
+        var productosDisponibles = _productoRepository.GetProducts();
+
+        // 2. Creamos el ViewModel
+        var viewModel = new AgregarProductoViewModel
+        {
+            IdPresupuesto = id, // Pasamos el ID del presupuesto al que pertenece
+
+            // 3. Creamos el SelectList para el dropdown 
+            //    - "productosDisponibles" es la lista de datos.
+            //    - "IdProducto" es el nombre de la propiedad que se usará como valor (el ID).
+            //    - "Descripcion" es el nombre de la propiedad que verá el usuario.
+            ListaProductos = new SelectList(productosDisponibles, "IdProducto", "Descripcion")
+        };
+
+        // 4. Pasamos el ViewModel a la nueva vista
+        return View(viewModel);
+    }
+
+    // --- ACCIÓN "AGREGAR PRODUCTO" (POST) ---
+    // POST: /Presupuestos/AgregarProducto
+    [HttpPost]
+    public IActionResult AgregarProducto(AgregarProductoViewModel viewModel)
+    {
         try
         {
-            // Validamos que hayan seleccionado un producto
-            if (productoId == 0)
+            // 1. CHEQUEO DE VALIDACIÓN
+            if (!ModelState.IsValid)
             {
-                throw new Exception("Debe seleccionar un producto.");
+                // ¡LÓGICA CRÍTICA DE RECARGA!
+                // Si la validación falla (ej. cantidad en 0),
+                // el `viewModel.ListaProductos` es 'null' (porque no viaja en el POST).
+                // Debemos recargarlo antes de devolver la vista .
+                var productos = _productoRepository.GetProducts();
+                viewModel.ListaProductos = new SelectList(productos, "IdProducto", "Descripcion");
+
+                return View(viewModel); // Devolvemos la vista con el error y el dropdown lleno
             }
 
-            // 1. Usamos el método de nuestro repositorio que ya existía
-            _presupuestoRepository.AgregarProductoAPresupuesto(presupuestoId, productoId, cantidad);
+            // 2. Si es válido, llamamos al repositorio
+            _presupuestoRepository.AgregarProductoAPresupuesto(
+                viewModel.IdPresupuesto,
+                viewModel.IdProducto,
+                viewModel.Cantidad
+            );
 
-            // 2. Redirigimos de vuelta a la página de Detalles.
-            //    Esto recargará la página y mostrará el producto
-            //    recién agregado en la tabla.
-            return RedirectToAction("Details", new { id = presupuestoId });
+            // 3. Redirigimos de vuelta al Detalle del presupuesto
+            return RedirectToAction("Details", new { id = viewModel.IdPresupuesto });
         }
         catch (Exception ex)
         {
-            // Si hay un error (ej. producto duplicado, o no seleccionó), 
-            // volvemos a Details pero mostrando el error.
-
-            // Re-cargamos los datos necesarios para la vista Details
-            var presupuesto = _presupuestoRepository.GetById(presupuestoId);
-            ViewBag.Productos = _productoRepository.GetProducts();
-
-            // Guardamos el mensaje de error para mostrarlo
             ViewData["ErrorMessage"] = ex.Message;
-
-            return View("Details", presupuesto);
+            // Recargamos el SelectList también en caso de un error de BD
+            var productos = _productoRepository.GetProducts();
+            viewModel.ListaProductos = new SelectList(productos, "IdProducto", "Descripcion");
+            return View(viewModel);
         }
     }
 }
