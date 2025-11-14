@@ -46,17 +46,6 @@ public class PresupuestosController : Controller
             {
                 return NotFound("No se encontró el presupuesto solicitado.");
             }
-
-            // 3. Pasamos el objeto Presupuesto (con su lista de detalles) a la Vista.
-
-            // 1. Obtenemos la lista de TODOS los productos disponibles
-            var productosDisponibles = _productoRepository.GetProducts();
-
-            // 2. Usamos ViewBag para pasar esta lista "extra" a la Vista.
-            //    ViewBag es un "cajón" temporal para pasar datos 
-            //    además del @model principal.
-            ViewBag.Productos = productosDisponibles;
-
             // 3. Pasamos el presupuesto (el @model) a la Vista
             return View(presupuesto);
         }
@@ -142,7 +131,6 @@ public class PresupuestosController : Controller
 
     // --- EDITAR (UPDATE) - PASO 2: RECIBIR EL FORMULARIO (POST) ---
     // POST: /Presupuestos/Edit/5
-    [HttpPost]
     [HttpPost]
     public IActionResult Edit(PresupuestoViewModel viewModel) // 👈 1. RECIBE EL VIEWMODEL
     {
