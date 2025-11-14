@@ -72,81 +72,113 @@ public class PresupuestosController : Controller
     [HttpGet]
     public IActionResult Create()
     {
-        // Creamos un objeto Presupuesto nuevo y le asignamos
-        // la fecha de hoy por defecto.
-        var nuevoPresupuesto = new Presupuesto
+        // Creamos un ViewModel nuevo y asignamos la fecha por defecto
+        var viewModel = new PresupuestoViewModel
         {
             FechaCreacion = DateTime.Now
         };
-
-        // Pasamos el modelo a la vista para que pueda usar la fecha
-        return View(nuevoPresupuesto);
+        return View(viewModel);
     }
 
     // --- CREAR (CREATE) - PASO 2: RECIBIR EL FORMULARIO (POST) ---
     [HttpPost]
-    public IActionResult Create(Presupuesto presupuesto)
+    public IActionResult Create(PresupuestoViewModel viewModel) // 1. RECIBE EL VIEWMODEL
     {
-        // El 'presupuesto' que llega aquí solo tendrá 
-        // NombreDestinatario y FechaCreacion (la lista de detalles estará vacía).
-        presupuesto.FechaCreacion = DateTime.Now; // Aseguramos que la fecha sea la actual
-
-        if (ModelState.IsValid)
+        try
         {
-            try
+            // 2. ¡VALIDACIÓN PERSONALIZADA!
+            //    Requisito del TP9: La fecha no puede ser futura
+            if (viewModel.FechaCreacion.Date > DateTime.Now.Date)
             {
-                // 1. Usamos el repositorio para crear el encabezado en la BD
-                //    (Nuestro repo ya maneja transacciones, ¡está perfecto!)
-                var presupuestoCreado = _presupuestoRepository.Create(presupuesto);
+                // Añadimos un error personalizado al ModelState
+                ModelState.AddModelError(nameof(viewModel.FechaCreacion), "La fecha no puede ser futura.");
+            }
 
-                // 2. ¡Redirigimos al usuario a la vista de Detalles
-                //    para que pueda empezar a agregar productos!
-                return RedirectToAction("Details", new { id = presupuestoCreado.IdPresupuesto });
-            }
-            catch (Exception ex)
+            // 3. CHEQUEO DE VALIDACIÓN (Data Annotations + el nuestro)
+            if (!ModelState.IsValid)
             {
-                ViewData["ErrorMessage"] = ex.Message;
-                return View(presupuesto);
+                // Si falla, volvemos a mostrar el formulario
+                return View(viewModel);
             }
+
+            // 4. "MAPEO": ViewModel -> Modelo de BD
+            var presupuestoBD = new Presupuesto
+            {
+                NombreDestinatario = viewModel.NombreDestinatario,
+                FechaCreacion = viewModel.FechaCreacion
+                // La lista de detalles va vacía, como antes
+            };
+
+            // 5. Enviamos al repositorio
+            var presupuestoCreado = _presupuestoRepository.Create(presupuestoBD);
+
+            return RedirectToAction("Details", new { id = presupuestoCreado.IdPresupuesto });
         }
-        return View(presupuesto);
+        catch (Exception ex)
+        {
+            ViewData["ErrorMessage"] = ex.Message;
+            return View(viewModel);
+        }
     }
-
     [HttpGet]
     public IActionResult Edit(int id)
     {
-        var presupuesto = _presupuestoRepository.GetById(id);
-        if (presupuesto == null)
+        var presupuestoBD = _presupuestoRepository.GetById(id);
+        if (presupuestoBD == null)
         {
             return NotFound();
         }
-        // Mostramos el formulario de edición, RELLENO con los datos
-        return View(presupuesto);
+
+        // "MAPEO INVERSO": Modelo de BD -> ViewModel
+        var viewModel = new PresupuestoViewModel
+        {
+            IdPresupuesto = presupuestoBD.IdPresupuesto,
+            NombreDestinatario = presupuestoBD.NombreDestinatario,
+            FechaCreacion = presupuestoBD.FechaCreacion
+        };
+
+        return View(viewModel);
     }
 
     // --- EDITAR (UPDATE) - PASO 2: RECIBIR EL FORMULARIO (POST) ---
     // POST: /Presupuestos/Edit/5
     [HttpPost]
-    public IActionResult Edit(Presupuesto presupuesto)
+    [HttpPost]
+    public IActionResult Edit(PresupuestoViewModel viewModel) // 👈 1. RECIBE EL VIEWMODEL
     {
-        // Solo validamos y actualizamos el encabezado
-        if (ModelState.IsValid)
+        try
         {
-            try
+            // 2. ¡VALIDACIÓN PERSONALIZADA!
+            if (viewModel.FechaCreacion.Date > DateTime.Now.Date)
             {
-                // ¡Crearemos este método en el siguiente paso!
-                _presupuestoRepository.Update(presupuesto);
-                return RedirectToAction("Details", new { id = presupuesto.IdPresupuesto });
+                ModelState.AddModelError(nameof(viewModel.FechaCreacion), "La fecha no puede ser futura.");
             }
-            catch (Exception ex)
-            {
-                ViewData["ErrorMessage"] = ex.Message;
-                return View(presupuesto);
-            }
-        }
-        return View(presupuesto);
-    }
 
+            // 3. CHEQUEO DE VALIDACIÓN
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+
+            // 4. "MAPEO": ViewModel -> Modelo de BD
+            var presupuestoBD = new Presupuesto
+            {
+                IdPresupuesto = viewModel.IdPresupuesto,
+                NombreDestinatario = viewModel.NombreDestinatario,
+                FechaCreacion = viewModel.FechaCreacion
+            };
+
+            // 5. Enviamos al repositorio
+            _presupuestoRepository.Update(presupuestoBD);
+
+            return RedirectToAction("Details", new { id = presupuestoBD.IdPresupuesto });
+        }
+        catch (Exception ex)
+        {
+            ViewData["ErrorMessage"] = ex.Message;
+            return View(viewModel);
+        }
+    }
     // --- ELIMINAR (DELETE) - PASO 1: MOSTRAR CONFIRMACIÓN (GET) ---
     // GET: /Presupuestos/Delete/5
     [HttpGet]

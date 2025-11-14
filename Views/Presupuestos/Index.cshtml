@@ -1,41 +1,45 @@
-@using TP7.PresupuestoModel
-@model List<Presupuesto>
+@using SistemaVentas.Web.ViewModels
+@model PresupuestoViewModel
 @{
     ViewData["Title"] = "Listado de Presupuestos";
 }
 
 <h1>@ViewData["Title"]</h1>
+<h4>Editando Encabezado (Presupuesto N°: @Model.IdPresupuesto)</h4>
+<hr />
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Crear Nuevo Presupuesto</a>
-</p>
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+}
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Destinatario</th>
-            <th>Fecha de Creación</th>
-            <th>N° Productos</th> <th>Total (c/IVA)</th> <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var presupuesto in Model)
-        {
-            <tr>
-                <td>@presupuesto.IdPresupuesto</td>
-                <td>@presupuesto.NombreDestinatario</td>
-                <td>@presupuesto.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                
-                <td>@presupuesto.CantidadProductos()</td>
-                <td>@presupuesto.MontoPresupuestoConIVA().ToString("C")</td>
-                
-                <td>
-                    <a asp-action="Edit" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-warning btn-sm">Editar</a>
-                    <a asp-action="Details" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-info btn-sm">Detalles</a>
-                    <a asp-action="Delete" asp-route-id="@presupuesto.IdPresupuesto" class="btn btn-danger btn-sm">Eliminar</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+
+            <input type="hidden" asp-for="IdPresupuesto" />
+
+            <div class="form-group mb-3">
+                <label asp-for="NombreDestinatario" class="control-label"></label>
+                <input asp-for="NombreDestinatario" class="form-control" />
+                <span asp-validation-for="NombreDestinatario" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FechaCreacion" class="control-label"></label>
+                <input asp-for="FechaCreacion" class="form-control" type="date"
+                    value="@Model.FechaCreacion.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="FechaCreacion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Guardar Cambios" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
